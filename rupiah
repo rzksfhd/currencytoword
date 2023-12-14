@@ -1,0 +1,115 @@
+Option Explicit
+ 
+'Main Function
+Function SpellNumber(ByVal MyNumber)
+    Dim Rupiah, Perak, Temp
+    Dim DecimalPlace, Count
+    ReDim Place(9) As String
+    Place(2) = " Ribu "
+    Place(3) = " Juta "
+    Place(4) = " Miliar "
+    Place(5) = " Triliun "
+    ' String representation of amount.
+    MyNumber = Trim(Str(MyNumber))
+    ' Position of decimal place 0 if none.
+    DecimalPlace = InStr(MyNumber, ".")
+    ' Convert cents and set MyNumber to dollar amount.
+    If DecimalPlace > 0 Then
+        Perak = GetTens(Left(Mid(MyNumber, DecimalPlace + 1) & "00", 2))
+        MyNumber = Trim(Left(MyNumber, DecimalPlace - 1))
+    End If
+    Count = 1
+    Do While MyNumber <> ""
+        Temp = GetHundreds(Right(MyNumber, 3))
+        If Temp <> "" Then Rupiah = Temp & Place(Count) & Rupiah
+        If Len(MyNumber) > 3 Then
+            MyNumber = Left(MyNumber, Len(MyNumber) - 3)
+        Else
+            MyNumber = ""
+        End If
+        Count = Count + 1
+    Loop
+    Select Case Rupiah
+        Case ""
+            Rupiah = "Bukan Rupiah"
+        Case "Satu"
+            Rupiah = "Satu Rupiah"
+        Case Else
+            Rupiah = Rupiah & " Rupiah"
+    End Select
+    Select Case Perak
+        Case ""
+            Perak = " dan Bukan Perak"
+        Case "Satu"
+            Perak = " dan Satu Perak"
+        Case Else
+            Perak = " dan " & Perak & " Perak"
+    End Select
+    SpellNumber = Rupiah
+End Function
+ 
+' Converts a number from 100-999 into text
+Function GetHundreds(ByVal MyNumber) As String
+    Dim Result As String
+    If Val(MyNumber) = 0 Then Exit Function
+    MyNumber = Right("000" & MyNumber, 3)
+    ' Convert the hundreds place.
+    If Mid(MyNumber, 1, 1) <> "0" Then
+        Result = GetDigit(Mid(MyNumber, 1, 1)) & " Ratus "
+    End If
+    ' Convert the tens and ones place.
+    If Mid(MyNumber, 2, 1) <> "0" Then
+        Result = Result & GetTens(Mid(MyNumber, 2))
+    Else
+        Result = Result & GetDigit(Mid(MyNumber, 3))
+    End If
+    GetHundreds = Result
+End Function
+ 
+' Converts a number from 10 to 99 into text.
+Function GetTens(TensText) As String
+    Dim Result As String
+    Result = "" ' Null out the temporary function value.
+    If Val(Left(TensText, 1)) = 1 Then ' If value between 10-19...
+        Select Case Val(TensText)
+            Case 10: Result = "Sepuluh"
+            Case 11: Result = "Sebelas"
+            Case 12: Result = "Dua Belas"
+            Case 13: Result = "Tiga Belas"
+            Case 14: Result = "Empat Belas"
+            Case 15: Result = "Lima Belas"
+            Case 16: Result = "Enam Belas"
+            Case 17: Result = "Tujuh Belas"
+            Case 18: Result = "Delapan Belas"
+            Case 19: Result = "Sembilan Belas"
+        End Select
+    Else ' If value between 20-99...
+        Select Case Val(Left(TensText, 1))
+            Case 2: Result = "Dua Puluh "
+            Case 3: Result = "Tiga Puluh "
+            Case 4: Result = "Empat Puluh "
+            Case 5: Result = "Lima Puluh "
+            Case 6: Result = "Enam Puluh "
+            Case 7: Result = "Tujuh Puluh "
+            Case 8: Result = "Delapan Puluh "
+            Case 9: Result = "Sembilah Puluh "
+        End Select
+        Result = Result & GetDigit(Right(TensText, 1))  ' Retrieve ones place.
+    End If
+    GetTens = Result
+End Function
+ 
+' Converts a number from 1 to 9 into text.
+Function GetDigit(Digit) As String
+    Select Case Val(Digit)
+        Case 1: GetDigit = "Satu"
+        Case 2: GetDigit = "Dua"
+        Case 3: GetDigit = "Tiga"
+        Case 4: GetDigit = "Empat"
+        Case 5: GetDigit = "Lima"
+        Case 6: GetDigit = "Enam"
+        Case 7: GetDigit = "Tujuh"
+        Case 8: GetDigit = "Delapan"
+        Case 9: GetDigit = "Sembilan"
+    End Select
+End Function
